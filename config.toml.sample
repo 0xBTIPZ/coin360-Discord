@@ -1,0 +1,26 @@
+[mysql]
+host = "localhost"
+port = 3306
+user = "user"
+password = "pass"
+db = "dbname"
+# database is mainly to store guild list. It can be sqlite but have to update the code
+
+[discord]
+owner_ids = [386761001808166912]
+admin = [386761001808166912] # pluton
+token = "your discord token"
+duration = 60.0
+webhook = "..." # create a webhook in your Discord for some guild join/leave notification
+
+[selenium_setting]
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+coin360_url = "https://www.coin360.com/"
+win_h = 2160 # You can change this if necessary
+win_w = 3840 # You can change this if necessary
+
+[coin360]
+url = "https://coin360.com/"
+id_crop = "MAP_ID"
+static_coin360_path = "./images/" # should be absolute path to store all screen images.
+static_coin360_link = "https://coin360-img.btipz.com/coin360_images/" # change this. And create a domain and point it to the static path as above
