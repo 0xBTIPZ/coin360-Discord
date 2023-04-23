@@ -10,11 +10,11 @@ db = "dbname"
 owner_ids = [386761001808166912]
 admin = [386761001808166912] # pluton
 token = "your discord token"
-duration = 60.0
+duration = 60.0 # not use
 webhook = "..." # create a webhook in your Discord for some guild join/leave notification
 
 [selenium_setting]
-user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/37.0.2062.94 Chrome/37.0.2062.94 Safari/537.36" # change to any common user agent if you want https://gist.github.com/pzb/b4b6f57144aea7827ae4
 coin360_url = "https://www.coin360.com/"
 win_h = 2160 # You can change this if necessary
 win_w = 3840 # You can change this if necessary
