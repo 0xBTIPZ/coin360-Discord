@@ -18,6 +18,8 @@
 
 The Bot will screenshot from <http://coin360.com/> and keep posting to designated channel. There are only two commands `/viewcoin360` and `/coin360channel` (for Discord guild moderator).
 
+* Invite link <https://discord.com/oauth2/authorize?client_id=1099642526501183528&scope=bot+applications.commands&permissions=2147534848>
+
 ![Screenshot](https://github.com/0xBTIPZ/coin360-Discord/blob/main/screenshot.jpg?raw=true)
 
 ### Our Discord
