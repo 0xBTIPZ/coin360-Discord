@@ -26,6 +26,7 @@ static_coin360_path = "./images/" # should be absolute path to store all screen 
 static_coin360_link = "https://coin360-img.btipz.com/coin360_images/" # change this. And create a domain and point it to the static path as above
 
 [other_image_storage]
+enable = 0 # enable or disable these scrape. Not necessary to enable if you don't use
 volume_1d = "./coin360_images_volume_1d/"
 volume_1h = "./coin360_images_volume_1h/"
 mcap_1h = "./coin360_images_mcap_1h/"

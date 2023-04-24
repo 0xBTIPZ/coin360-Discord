@@ -334,6 +334,9 @@ class Commanding(commands.Cog):
 
     @tasks.loop(minutes=2)
     async def fetch_coin360_others(self):
+        if self.bot.config['other_image_storage']['enable'] != 1:
+            return
+
         # volume_1d
         try:
             display_id = random.choice(self.display_list)
