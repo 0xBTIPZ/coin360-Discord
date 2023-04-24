@@ -15,6 +15,7 @@ import functools
 import os, sys, traceback
 from io import BytesIO
 from PIL import Image
+import asyncio
 
 from pyvirtualdisplay import Display
 # The selenium module
@@ -33,7 +34,7 @@ def floor_date(date, **kwargs):
     secs = timedelta(**kwargs).total_seconds()
     return datetime.fromtimestamp(date.timestamp() - date.timestamp() % secs)
 
-def get_coin360(display_id: str, static_coin360_path, selenium_setting, coin360, bg_task: bool=False):
+def get_coin360(display_id: str, static_coin360_path, selenium_setting, coin360, url: str, bg_task: bool=False):
     return_to = None
     floor_t = floor_date(datetime.now(), minutes=5) #round down 5 minutes
     if bg_task is True:
@@ -66,7 +67,7 @@ def get_coin360(display_id: str, static_coin360_path, selenium_setting, coin360,
         driver.set_window_position(0, 0)
         driver.set_window_size(selenium_setting['win_w'], selenium_setting['win_h'])
 
-        driver.get(coin360['url'])
+        driver.get(url)
         WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.ID, "SHA256")))
         WebDriverWait(driver, timeout).until(EC.visibility_of_element_located((By.ID, "EtHash")))
         time.sleep(3.0)
@@ -226,7 +227,7 @@ class Commanding(commands.Cog):
             self.display_list.remove(display_id)
             fetch_coin360 = functools.partial(
                 get_coin360, display_id, self.bot.config['coin360']['static_coin360_path'],
-                self.bot.config['selenium_setting'], self.bot.config['coin360'], bg_task=False
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['coin360']['url'], bg_task=False
             )
             map_image = await self.bot.loop.run_in_executor(None, fetch_coin360)
             self.display_list.append(display_id)
@@ -250,7 +251,7 @@ class Commanding(commands.Cog):
             self.display_list.remove(display_id)
             fetch_coin360 = functools.partial(
                 get_coin360, display_id, self.bot.config['coin360']['static_coin360_path'],
-                self.bot.config['selenium_setting'], self.bot.config['coin360'], bg_task=False
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['coin360']['url'], bg_task=False
             )
             map_image = await self.bot.loop.run_in_executor(None, fetch_coin360)
             self.display_list.append(display_id)
@@ -323,10 +324,51 @@ class Commanding(commands.Cog):
             self.display_list.remove(display_id)
             fetch_coin360 = functools.partial(
                 get_coin360, display_id, self.bot.config['coin360']['static_coin360_path'],
-                self.bot.config['selenium_setting'], self.bot.config['coin360'], bg_task=True
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['coin360']['url'], bg_task=True
             )
             map_image = await self.bot.loop.run_in_executor(None, fetch_coin360)
             # print("{} fetching bg coin360 completed and saved {}.".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), map_image))
+            self.display_list.append(display_id)
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+
+    @tasks.loop(minutes=2)
+    async def fetch_coin360_others(self):
+        # volume_1d
+        try:
+            display_id = random.choice(self.display_list)
+            self.display_list.remove(display_id)
+            fetch_coin360 = functools.partial(
+                get_coin360, display_id, self.bot.config['other_image_storage']['volume_1d'],
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['other_coin360_link']['volume_1d'], bg_task=True
+            )
+            volume_1d = await self.bot.loop.run_in_executor(None, fetch_coin360)
+            self.display_list.append(display_id)
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+        await asyncio.sleep(2.0)
+        # volume_1h
+        try:
+            display_id = random.choice(self.display_list)
+            self.display_list.remove(display_id)
+            fetch_coin360 = functools.partial(
+                get_coin360, display_id, self.bot.config['other_image_storage']['volume_1h'],
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['other_coin360_link']['volume_1h'], bg_task=True
+            )
+            volume_1h = await self.bot.loop.run_in_executor(None, fetch_coin360)
+            self.display_list.append(display_id)
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+        await asyncio.sleep(2.0)
+        # mcap_1h
+        try:
+            display_id = random.choice(self.display_list)
+            self.display_list.remove(display_id)
+            fetch_coin360 = functools.partial(
+                get_coin360, display_id, self.bot.config['other_image_storage']['mcap_1h'],
+                self.bot.config['selenium_setting'], self.bot.config['coin360'], self.bot.config['other_coin360_link']['mcap_1h'], bg_task=True
+            )
+            mcap_1h = await self.bot.loop.run_in_executor(None, fetch_coin360)
             self.display_list.append(display_id)
         except Exception:
             traceback.print_exc(file=sys.stdout)
@@ -337,6 +379,8 @@ class Commanding(commands.Cog):
             self.fetch_coin360_bg.start()
         if not self.update_channel_bg.is_running():
             self.update_channel_bg.start()
+        if not self.fetch_coin360_others.is_running():
+            self.fetch_coin360_others.start()
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -353,11 +397,17 @@ class Commanding(commands.Cog):
         )
 
     async def cog_load(self) -> None:
-        pass
+        if not self.fetch_coin360_bg.is_running():
+            self.fetch_coin360_bg.start()
+        if not self.update_channel_bg.is_running():
+            self.update_channel_bg.start()
+        if not self.fetch_coin360_others.is_running():
+            self.fetch_coin360_others.start()
 
     async def cog_unload(self) -> None:
         self.fetch_coin360_bg.cancel()
         self.update_channel_bg.cancel()
+        self.fetch_coin360_others.cancel()
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Commanding(bot))

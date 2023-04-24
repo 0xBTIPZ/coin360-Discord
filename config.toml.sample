@@ -24,3 +24,15 @@ url = "https://coin360.com/"
 id_crop = "MAP_ID"
 static_coin360_path = "./images/" # should be absolute path to store all screen images.
 static_coin360_link = "https://coin360-img.btipz.com/coin360_images/" # change this. And create a domain and point it to the static path as above
+
+[other_image_storage]
+volume_1d = "./coin360_images_volume_1d/"
+volume_1h = "./coin360_images_volume_1h/"
+mcap_1h = "./coin360_images_mcap_1h/"
+# mcap_1d: default
+
+[other_coin360_link]
+volume_1d = "https://www.coin360.com/?dependsOn=volume&period=1d"
+volume_1h = "https://www.coin360.com/?dependsOn=volume&period=1h"
+mcap_1h = "https://www.coin360.com/?dependsOn=marketCap&period=1h"
+# mcap_1d: default
